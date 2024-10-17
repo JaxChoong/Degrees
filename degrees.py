@@ -72,7 +72,7 @@ def main():
     path = shortest_path(source, target)
 
     if path is None:
-        print("Not connected.")
+        print("no path")
     else:
         degrees = len(path)
         print(f"{degrees} degrees of separation.")
@@ -91,9 +91,58 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    # keep track of states explored
+    num_explored = 0
 
-    # TODO
-    raise NotImplementedError
+    # Check if source and target are the same
+    if source == target:
+        return []
+
+    #initialise frontier
+    start = Node(state=source,parent=None,action=None)
+    frontier = QueueFrontier()
+    frontier.add(start)
+
+    # initialise empty explored set
+    explored = set()
+
+    solution = []
+    # loop until find solution
+    while True:
+        # if frontier is empty, then no path
+        if frontier.empty():
+            return None
+        
+        # remove node from frontier
+        node = frontier.remove()
+        num_explored +=1
+
+        #mark node as explored
+        explored.add(node.state)
+
+        # add neighbors to frontier
+        # action is name,state is id
+        for movieId,personId in neighbors_for_person(node.state):
+            if not frontier.contains_state(personId) and personId not in explored:
+                child = Node(state=personId,parent=node,action=movieId)
+                if child.state == target:
+                    movies =[]
+                    actors =[]
+                    while child.parent is not None:
+                        movies.append(child.action)
+                        actors.append(child.state)
+                        child=child.parent
+                    movies.reverse()
+                    actors.reverse()
+                    list = zip(movies,actors)
+                    for movie,actor in list:
+                        solution.append((movie,actor))
+                    return solution
+                frontier.add(child)
+
+
+        
+
 
 
 def person_id_for_name(name):
